@@ -2,9 +2,8 @@ import { expect } from 'chai'
 import {
     createKeys,
     revokeKey,
-    getKeys,
-    storeKeys,
-    deleteKeys,
+    encrypt,
+    decrypt
 } from '../src/scrambler'
 
 describe ('scrambler', function () {
@@ -20,26 +19,19 @@ describe ('scrambler', function () {
             passphrase: 'Test test test test test test'
         })
 
+        expect (key).to.have.property ('publicKeyArmored', key.publicKeyArmored)
+        expect (key).to.have.property ('privateKeyArmored', key.privateKeyArmored)
+        expect (key).to.have.property ('revocationCertificate', key.revocationCertificate)
+
         await revokeKey (key)
     })
 
-    it ('stores a key in the keychain', async () => {
-        const key = await createKeys ({
-            name: 'Test',
-            email,
-            passphrase: 'Test test test test test test'
-        })
+    it ('encrypts and decrypts data', () => {
+        const data = '{"data":"Super secret information"}'
+        const key = 'Super secure password!!!1111'
+        const cypertext = encrypt ({ data, key })
 
-        const account = key.email
-
-        await storeKeys ({ ...key, account })
-        const keys = await getKeys ({ account })
-
-        expect (keys).to.have.property ('publicKeyArmored', key.publicKeyArmored)
-        expect (keys).to.have.property ('privateKeyArmored', key.privateKeyArmored)
-        expect (keys).to.have.property ('revocationCertificate', key.revocationCertificate)
-
-        await deleteKeys ({ account })
-        await revokeKey (key)
+        expect (cypertext).to.not.equal (data)
+        expect (decrypt ({ data: cypertext, key })).to.equal (data)
     })
 })

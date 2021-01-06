@@ -1,9 +1,9 @@
+import * as crypto from 'crypto'
 import * as openpgp from 'openpgp'
 import { randomBytes, createHash } from 'crypto'
 import { networkInterfaces } from 'os'
-import * as keytar from 'keytar'
 
-const service = require ('../package.json').name
+const { name: service } = require ('../package.json')
 
 type ResolvedType<T> = T extends PromiseLike<infer U> ? U : T
 
@@ -65,25 +65,17 @@ export async function revokeKey ({
     })
 }
 
-export function storeKeys ({
-    publicKeyArmored,
-    privateKeyArmored,
-    revocationCertificate,
-    account,
-}: ResolvedType<ReturnType<typeof openpgp.generateKey>> & {
-    account: string
-}): ReturnType<typeof keytar.setPassword> {
-
-    const payload = JSON.stringify ({ publicKeyArmored, privateKeyArmored, revocationCertificate })
-    return keytar.setPassword (service, account, payload)
+export function encrypt ({ data, key: password }: { data: string, key: string }): string {
+    const iv = crypto.randomBytes (16)
+    const key = crypto.createHash ('sha256').update (password).digest ()
+    const cipher = crypto.createCipheriv ('aes256', key, iv)
+    return iv.toString ('hex') + ':' + (cipher.update (data, 'utf-8', 'hex') + cipher.final ('hex'))
 }
 
-export function deleteKeys ({ account }: { account: string }): ReturnType<typeof keytar.deletePassword> {
-    return keytar.deletePassword (service, account)
-}
-
-export async function getKeys ({ account }: { account: string }): Promise<ResolvedType<ReturnType<typeof openpgp.generateKey>>>{
-
-    const keys = await keytar.getPassword (service, account)
-    return JSON.parse (keys) as ResolvedType<ReturnType<typeof openpgp.generateKey>>
+export function decrypt ({ data, key: password }: { data: string, key: string }): string {
+    const [ivHex, cyphertext] = data.split (':')
+    const iv = Buffer.from (ivHex, 'hex')
+    const key = crypto.createHash ('sha256').update (password).digest ()
+    const decipher = crypto.createDecipheriv ('aes256', key, iv)
+    return decipher.update (cyphertext, 'hex', 'utf-8') + decipher.final ('utf-8')
 }
