@@ -1,10 +1,23 @@
 {
     "compilerOptions": {
+        "module": "commonjs",
+        "target": "esnext",
+        "strict": true,
+        "alwaysStrict": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "useUnknownInCatchVariables": true,
+        "declaration": true,
+        "rootDir": "./src",
+        "outDir": "./build",
+        "noImplicitAny": true,
         "baseUrl": ".",
         "allowSyntheticDefaultImports": true,
         "allowJs": false,
-        "noImplicitAny": true,
-        "outDir": "build"
+        "typeRoots": [
+            "./@types",
+            "./node_modules/@types"
+        ]
     },
     "include": ["src/**/*"]
 }
