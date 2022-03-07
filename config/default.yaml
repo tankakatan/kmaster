@@ -1,3 +1,3 @@
-storage: /Users/denis/Developer/github/kmaster/local/file
-keystore: /Users/denis/Developer/github/kmaster/local/keystore.json
+storage: ''
+keystore: ''
 algorithm: aes-256-cbc
