@@ -1,3 +1,8 @@
 storage: STORAGE
 keystore: KEYSTORE
 algorithm: ALGORITHM
+secret:
+  saltLength: SALT_LENGTH
+  length: SECRET_LENGTH
+  digest: SECRET_DIGEST
+  iteration: HASH_ITERATIONS

@@ -5,6 +5,7 @@ import {createCipheriv, createDecipheriv} from 'crypto';
 import {Readable, promises as stream} from 'stream';
 import {spawn} from 'child_process';
 import config from 'config';
+import {program} from 'commander';
 
 export type GetDataArgs = {
     path: string;
@@ -123,20 +124,40 @@ export const pbcopy = (data: string | Storage) => {
     proc.stdin.end();
 }
 
-const setCommands = new Set(['-s', 'set', '--set']);
-const getCommands = new Set(['-g', 'get', '--get']);
+const app = require('../package.json');
 
-(async () => {
-    const [command, path, data] = process.argv.slice(2) as string[];
-    try {
-        if (getCommands.has(command)) {
-            return pbcopy(await getData({path}));
-        }
-        if (setCommands.has(command)) {
-            return await setData({path, data});
-        }
-        throw new Error(`Unknown command: "${command}"`);
-    } catch (e) {
-        console.error('Kmaster error:', e);
-    }
-})();
+program
+    .name(app.name)
+    .version(app.version)
+    .description(app.description)
+    .command('gen')
+    .option('-s --seed <string>', 'A seed phrase')
+    .option('-l --length <number>', 'Secret length')
+    .option('--salt <string>', 'Secret salt')
+    .option('--saltLength <number>', 'Secret salt lenght (ignored if `salt` argument is provided)')
+    .option('-i --iterations <number>', 'Hash iterations')
+    .option('-d --digest <string>', 'Hash digest')
+    .action((_, opts) => {
+        console.log(opts._optionValues);
+    });
+
+
+program.parse();
+
+// const setCommands = new Set(['-s', 'set', '--set']);
+// const getCommands = new Set(['-g', 'get', '--get']);
+
+// (async () => {
+//     const [command, path, data] = process.argv.slice(2) as string[];
+//     try {
+//         if (getCommands.has(command)) {
+//             return pbcopy(await getData({path}));
+//         }
+//         if (setCommands.has(command)) {
+//             return await setData({path, data});
+//         }
+//         throw new Error(`Unknown command: "${command}"`);
+//     } catch (e) {
+//         console.error('Kmaster error:', e);
+//     }
+// })();
