@@ -1,7 +1,7 @@
 'use strict';
 
 import {createReadStream, createWriteStream, promises as fs} from 'fs';
-import {createCipheriv, createDecipheriv} from 'crypto';
+import {createCipheriv, createDecipheriv, pbkdf2Sync, randomBytes} from 'crypto';
 import {Readable, promises as stream} from 'stream';
 import {spawn} from 'child_process';
 import config from 'config';
@@ -117,6 +117,28 @@ export const getData = async ({path}: GetDataArgs) => {
     }
     return data;
 };
+
+export const generateSecret = ({
+    seed,
+    salt,
+    saltLength = config.get('secret.saltLength'),
+    length = config.get('secret.length'),
+    iterations = config.get('secret.iterations'),
+    digest = config.get('secret.digest')
+}: GenerateSecretArgs): Buffer => {
+    const secret = pbkdf2Sync(
+        seed || randomBytes(32 + Math.round(Math.random() * 64)),
+        salt || randomBytes(saltLength),
+        iterations,
+        length,
+        digest
+    );
+}
+
+export const rescale = (x: number, xMin: number, xMax: number, yMin: number, yMax: number): number => (
+    // x/(xmax-xmin) = y/(ymax - ymin)
+    Math.round(yMin + (x * (yMax - yMin) / (xMax - xMin)))
+)
 
 export const pbcopy = (data: string | Storage) => {
     const proc = spawn('pbcopy');

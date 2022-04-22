@@ -6,3 +6,5 @@ secret:
   length: SECRET_LENGTH
   digest: SECRET_DIGEST
   iteration: HASH_ITERATIONS
+  alphabet: SECRET_ALPHABET
+  ignoreChars: IGNORE_CHARS

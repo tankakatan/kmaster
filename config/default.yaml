@@ -6,3 +6,5 @@ secret:
   length: 32
   digest: sha-256
   iteration: 100000
+  alphabet: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~`!@#$%^&*()_-+={[}]|\:;"'<,>.?/
+  ignoreChars: ''
