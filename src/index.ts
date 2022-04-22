@@ -152,9 +152,8 @@ export const generateSecret = ({
 }
 
 export const rescale = (x: number, xMin: number, xMax: number, yMin: number, yMax: number): number => (
-    // x/(xmax-xmin) = y/(ymax - ymin)
-    Math.round(yMin + (x * (yMax - yMin) / (xMax - xMin)))
-)
+    Math.round(((x - xMin) * (yMax - yMin) / (xMax - xMin)) + yMin)
+);
 
 export const pbcopy = (data: string | Storage) => {
     const proc = spawn('pbcopy');
