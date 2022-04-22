@@ -4,7 +4,7 @@ algorithm: aes-256-cbc
 secret:
   saltLength: 128
   length: 32
-  digest: sha-256
-  iteration: 100000
+  digest: sha256
+  iterations: 100000
   alphabet: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~`!@#$%^&*()_-+={[}]|\:;"'<,>.?/
   ignoreChars: ''

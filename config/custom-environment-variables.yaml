@@ -5,6 +5,6 @@ secret:
   saltLength: SALT_LENGTH
   length: SECRET_LENGTH
   digest: SECRET_DIGEST
-  iteration: HASH_ITERATIONS
+  iterations: HASH_ITERATIONS
   alphabet: SECRET_ALPHABET
   ignoreChars: IGNORE_CHARS

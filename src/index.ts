@@ -124,15 +124,31 @@ export const generateSecret = ({
     saltLength = config.get('secret.saltLength'),
     length = config.get('secret.length'),
     iterations = config.get('secret.iterations'),
-    digest = config.get('secret.digest')
-}: GenerateSecretArgs): Buffer => {
-    const secret = pbkdf2Sync(
-        seed || randomBytes(32 + Math.round(Math.random() * 64)),
-        salt || randomBytes(saltLength),
+    digest = config.get('secret.digest'),
+    alphabet = config.get('secret.alphabet'),
+    ignoreChars = config.get('secret.ignoreChars')
+}: GenerateSecretArgs): GenerateSecretReturn => {
+    seed ||= randomBytes(32 + Math.round(Math.random() * 64));
+    salt ||= randomBytes(saltLength!);
+    const secretBytes = pbkdf2Sync(seed, salt, iterations, length, digest);
+    let usedChars = alphabet.split('');
+    if (ignoreChars && ignoreChars.length) {
+        const blacklist = new Set(ignoreChars.split(''));
+        usedChars = usedChars.filter((char: string) => !blacklist.has(char));
+    }
+    const secret = [];
+    for (const byte of secretBytes) {
+        secret.push(usedChars[rescale(byte, 0, 255, 0, usedChars.length - 1)]);
+    }
+    return {
+        secret: secret.join(''),
+        seed: Buffer.isBuffer(seed) ? seed.toString('hex') : seed,
+        salt: Buffer.isBuffer(salt) ? salt.toString('hex') : salt,
         iterations,
+        digest,
         length,
-        digest
-    );
+        alphabet: usedChars.join('')
+    }
 }
 
 export const rescale = (x: number, xMin: number, xMax: number, yMin: number, yMax: number): number => (
@@ -159,8 +175,10 @@ program
     .option('--saltLength <number>', 'Secret salt lenght (ignored if `salt` argument is provided)')
     .option('-i --iterations <number>', 'Hash iterations')
     .option('-d --digest <string>', 'Hash digest')
+    .option('-a --alphabet <string>', 'Chars to use in the secret')
+    .option('--ignoreChars <string>', 'Chars to avoid in the secret')
     .action((_, opts) => {
-        console.log(opts._optionValues);
+        console.log(generateSecret(opts._optionValues));
     });
 
 
